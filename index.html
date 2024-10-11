@@ -12,7 +12,27 @@
     <h1>Check酱</h1>
 <p><strong>Check酱是一个通用网页内容监控工具，可以监测网页内容变化，并发送异动到微信</strong></p>
 <p><a target="_blank" rel="noopener noreferrer" href="image/20220526194209.png"><img src="image/20220526194209.png" alt="" style="max-width: 100%;"></a></p>
-<p><g-emoji class="g-emoji" alias="warning" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png">⚠️</g-emoji> docker目录下的代码仅供安全核查和编译多平台镜像，采用附加条件的GPLV3授权：</p>
+<h2>商店安装</h2>
+<markdown-accessiblity-table><table role="table">
+<thead>
+<tr>
+<th>微软Edge</th>
+<th>谷歌Chrome</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://microsoftedge.microsoft.com/addons/detail/check%E9%85%B1/almpackhamocjhnlbhdbcnlbfidnadji" rel="nofollow"><img src="image/20220906224637.png" alt="" style="max-width: 100%;"></a></td>
+<td><a href="https://chrome.google.com/webstore/detail/check%E9%85%B1/deomglgnplnflcbljmehpafdnhdklcep" rel="nofollow"><img src="image/20220906224612.png" alt="" style="max-width: 100%;"></a></td>
+</tr>
+</tbody>
+</table></markdown-accessiblity-table>
+<p>点以上图标进入商店页面或者直接在商店搜索「Check酱」即可</p>
+<h2>官方视频教程</h2>
+<p><a href="https://www.bilibili.com/video/BV1K94y1m7tt" rel="nofollow"><img src="image/20220531151537.png" alt="" style="max-width: 100%;"></a></p>
+<p><a href="https://www.bilibili.com/video/BV1K94y1m7tt" rel="nofollow">详细版，近2小时</a></p>
+<h2>开源声明</h2>
+<p><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> 浏览器插件不开源，docker目录下的代码仅供安全核查和编译多平台镜像，采用附加条件的GPLV3授权：</p>
 <ol>
 <li><strong>不得修改或删除</strong>默认对接的Server酱通道。</li>
 <li>不得对接<strong>其他消息通道</strong>后再次发布。</li>
@@ -20,17 +40,15 @@
 </ol>
 <h2>最新版本</h2>
 <ul>
-<li>插件·Chrome/Edge：2022.06.04.15.57 <a href="ckc.zip">下载</a></li>
-<li>Docker镜像(云端+远程桌面二合一)：2022.06.04.15.28 <a href="https://hub.docker.com/repository/docker/easychen/checkchan" rel="nofollow">Docker Hub</a></li>
-<li>文档：2022.06.04.16.00</li>
+<li>插件·Chrome/Edge：2024.10.05.13.57 <a href="ckc.zip">下载</a> (<a href="https://github.com/easychen/checkchan-dist/raw/master/ckc.zip">Github下载地址，无需注册</a>)</li>
+<li>Docker镜像(云端+远程桌面二合一)：2024.10.10.17.20 <a href="https://hub.docker.com/repository/docker/easychen/checkchan" rel="nofollow">Docker Hub</a></li>
+<li>文档：2024.10.11.10.14</li>
 <li>更新日志：<a href="https://github.com/easychen/checkchan-dist/commits/main">GitHub</a></li>
+<li>生态：RSSHub浏览器插件整合版（<a href="https://github.com/easychen/RSSHub-Radar-with-checkchan">源码</a> | <a href="https://github.com/easychen/RSSHub-Radar-with-checkchan/releases/download/main/1.7.0.with-checkchan.zip">下载</a>）</li>
 </ul>
 <blockquote>
 <p>Docker镜像安装命令请参阅后文云端架设一节</p>
 </blockquote>
-<h2>官方视频教程</h2>
-<p><a href="https://www.bilibili.com/video/BV1K94y1m7tt" rel="nofollow"><img src="image/20220531151537.png" alt="" style="max-width: 100%;"></a></p>
-<p><a href="https://www.bilibili.com/video/BV1K94y1m7tt" rel="nofollow">详细版，近2小时</a></p>
 <h2>什么是「Check酱」</h2>
 <p><a target="_blank" rel="noopener noreferrer" href="image/20220521132637.png"><img src="image/20220521132637.png" alt="" style="max-width: 100%;"></a></p>
 <p>Check酱是方糖气球出品的网页内容监测工具，它包含一个Edge/Chrome<strong>浏览器插件</strong>和可以自行架设的<strong>云端</strong>。</p>
@@ -47,7 +65,7 @@
 <blockquote>
 <p>目前Check酱正在内测，尚未上架Edge商店，只能通过手工方式载入</p>
 </blockquote>
-<p>下载<a href="ckc.zip">插件ZIP包</a>，解压为目录（后文称其为A）。</p>
+<p>下载<a href="ckc.zip">插件ZIP包</a>(<a href="https://github.com/easychen/checkchan-dist/raw/master/ckc.zip">Github下载地址，无需注册</a>)，解压为目录（后文称其为A）。</p>
 <p>打开Edge的插件页面，打开「开发者模式」，点击「Load Unpacked」，选择上边解压得到的目录A。</p>
 <p><a target="_blank" rel="noopener noreferrer" href="image/20220521140506.png"><img src="image/20220521140506.png" alt="" style="max-width: 100%;"></a></p>
 <p>成功载入的话，就可以看到Check酱界面了。如果失败，通常是因为解压时多了一层目录导致的，可以试试重新选择A目录的下一级目录</p>
@@ -104,6 +122,15 @@
 <p><a target="_blank" rel="noopener noreferrer" href="image/20220523214048.png"><img src="image/20220523214048.png" alt="" style="max-width: 100%;"></a></p>
 <p>如果 「监测周期限制」 为每分钟，而「监控间隔时间」为60分钟，那么每分钟都会尝试监测，而一旦监测成功一次，那么下次监测将是60分钟后。</p>
 <p>同时，因为执行监测任务本身也耗费时间，所以「监控间隔时间」为1分钟时，往往每隔一分钟（即每两分钟）才会运行一次任务。</p>
+<h3>Selector 扩展语法</h3>
+<h4>通过@指定数组元素</h4>
+<p>最新的版本支持了一个Selector扩展语法：由于底层通过 <code class="notranslate">document.querySelectorAll</code> 实现，因此会返回匹配的全部元素于一个数组。当这些元素属于同一个父节点我们可以用 <code class="notranslate">:nth-of-type(1)</code> 或者 <code class="notranslate">:nth-child(1)</code>来指定数组中的某一项。</p>
+<p>但如果这些元素不属于同一个父节点，那么以上方法会失效。这里添加了一个 selector@n 的语法，让我们可以从 Selector 返回的数组中指定某一个元素。如 <code class="notranslate">.booklist .item@0</code> 将返回  <code class="notranslate">document.querySelectorAll(.booklist .item)[0]</code> 。</p>
+<blockquote>
+<p>@语法除了使用在DOM selector上，还可以用来指定 RSS 监测结果。默认情况下，RSS 将返回整个Feed的第一篇文章，你可以用过在 Feed url 后边添加 <a class="user-mention notranslate" data-hovercard-type="user" data-hovercard-url="/users/1/hovercard" data-octo-click="hovercard-link-click" data-octo-dimensions="link_type:self" href="https://github.com/1">@1</a> ，将其指定为监测第二篇文章（依然是从0开始计数）。</p>
+</blockquote>
+<h4>通过%获得元素属性</h4>
+<p>Selector的最下一级返回一个元素，但有时候我们需要监测这个元素的某个属性值。比如监测一个链接的<code class="notranslate">href</code>。为了解决这个问题，我们扩展了 selector 语法，让用户可以通过 element%attribute 的方式来获取元素的某个属性值。如：<code class="notranslate">article#post-180 &gt; div &gt; div &gt; p &gt; a%href</code>。当 <code class="notranslate">%</code> 和 <code class="notranslate">@</code> 同时使用时， <code class="notranslate">%</code> 应紧跟元素后，如：<code class="notranslate">article#post-180 &gt; div &gt; div &gt; p &gt; a%href@0</code>。</p>
 <h3>日志查看和错误定位</h3>
 <p>为了更清楚的了解定时任务的执行情况，你可以打开「开发者工具」（F12）在 <code class="notranslate">Console</code> 标签页中可以看到任务产生的日志。</p>
 <p><a target="_blank" rel="noopener noreferrer" href="image/20220523211235.png"><img src="image/20220523211235.png" alt="" style="max-width: 100%;"></a></p>
@@ -118,18 +145,21 @@
 <li>远程桌面：在Docker中封装了Chrome浏览器，可以通过VNC和Web界面像在电脑上一样使用。</li>
 </ul>
 <blockquote>
-<p><g-emoji class="g-emoji" alias="warning" fallback-src="https://github.githubassets.com/images/icons/emoji/unicode/26a0.png">⚠️</g-emoji> 特别说明：因为云端的网络、环境都和本机不同，所以并不保证本机能运行的任务都能在云端运行成功，一些复杂网页和有较多动态效果的网页可能失败。</p>
+<p><g-emoji class="g-emoji" alias="warning">⚠️</g-emoji> 特别说明：因为云端的网络、环境都和本机不同，所以并不保证本机能运行的任务都能在云端运行成功，一些复杂网页和有较多动态效果的网页可能失败。</p>
 </blockquote>
 <h3>安装</h3>
 <blockquote>
 <p>架设自架版云端需要技术基础，非技术用户建议购买我们的官方版云端（将在内测完成后发布）</p>
 </blockquote>
 <p>需要docker环境。如果你没有云服务器，可以看看<a href="https://curl.qcloud.com/VPjlS4gj" rel="nofollow">腾讯云30~50元首单的特价服务器</a>。</p>
+<h4>一键安装命令</h4>
+<p><a href="https://install.ftqq.com/config/checkchan" rel="nofollow">点此进入工具界面</a></p>
+<p><a target="_blank" rel="noopener noreferrer" href="image/20220818153012.png"><img src="image/20220818153012.png" alt="" style="max-width: 100%;"></a></p>
 <h4>通过 Docker-compose 启动</h4>
 <p>登录服务器（假设其IP为IPB），在要安装的目录下新建目录 <code class="notranslate">data</code>，并使其可写：</p>
-<div class="highlight highlight-source-shell"><pre>mkdir data <span class="pl-k">&amp;&amp;</span> chmod 0755 data</pre></div>
+<div class="highlight highlight-source-shell"><pre class="notranslate">mkdir data <span class="pl-k">&amp;&amp;</span> chmod 0755 data</pre></div>
 <p>新建一个 <code class="notranslate">docker-compose.yml</code> 文件，将下边的内容按提示调整后粘贴保存：</p>
-<div class="highlight highlight-source-yaml"><pre><span class="pl-ent">version</span>: <span class="pl-s"><span class="pl-pds">'</span>3<span class="pl-pds">'</span></span>
+<div class="highlight highlight-source-yaml"><pre class="notranslate"><span class="pl-ent">version</span>: <span class="pl-s"><span class="pl-pds">'</span>3<span class="pl-pds">'</span></span>
 <span class="pl-ent">services</span>:
   <span class="pl-ent">chrome</span>:
     <span class="pl-ent">image</span>: <span class="pl-s">easychen/checkchan:latest</span>
@@ -147,6 +177,8 @@
       <span class="pl-c"><span class="pl-c">#</span>- "SNAP_URL_BASE=&lt;开启截图在这里写服务器地址（结尾不用加/），不开留空&gt;..."</span>
       <span class="pl-c"><span class="pl-c">#</span>- "SNAP_FULL=1"</span>
       - <span class="pl-s"><span class="pl-pds">"</span>TZ=Asia/Chongqing<span class="pl-pds">"</span></span>
+      <span class="pl-c"><span class="pl-c">#</span> - "WEBHOOK_URL=http://..." # 云端 Webhook地址，不需要则不用设置</span>
+      <span class="pl-c"><span class="pl-c">#</span> - "WEBHOOK_FORMAT=json" # 云端 Webhook POST 编码，默认是 Form</span>
     <span class="pl-ent">ports</span>:
       - <span class="pl-s"><span class="pl-pds">"</span>5900:5900<span class="pl-pds">"</span></span> 
       - <span class="pl-s"><span class="pl-pds">"</span>8080:8080<span class="pl-pds">"</span></span> 
@@ -154,7 +186,7 @@
 <p>将其中<code class="notranslate">&lt;这里是远程桌面的密码，写一个你自己想的&gt;</code>和 <code class="notranslate">&lt;这里是云端的API KEY，写一个你自己想的&gt;</code> 换成别人不知道的密码（下文称密码C和D）。注意不要包含<code class="notranslate">$</code>字符，替换完后也不再有两边的尖括号<code class="notranslate">&lt;&gt;</code>。</p>
 <p>如果不希望启动远程桌面，请将 <code class="notranslate">VNC=ON</code> 改为 <code class="notranslate">VNC=OFF</code>。</p>
 <p>保证Docker用户对此目录有写权限，并在同一目录下运行以下命令：</p>
-<div class="highlight highlight-source-shell"><pre>docker-compose up -d</pre></div>
+<div class="highlight highlight-source-shell"><pre class="notranslate">docker-compose up -d</pre></div>
 <blockquote>
 <p>如提示docker服务未安装/找不到/未启动，可在 docker-compose 前加 sudo 再试</p>
 </blockquote>
@@ -167,16 +199,19 @@
 </ul>
 <h4>通过 Docker 启动</h4>
 <p>你也可以将 <code class="notranslate">docker-compose</code> 中的参数传给 docker 来启动：</p>
-<div class="highlight highlight-source-shell"><pre>docker run -d -p 8088:80 -p 8080:8080 -p 5900:5900 -v <span class="pl-smi">${PWD}</span>/data:/checkchan/data -e API_KEY=123  -e VDEBUG=OFF -e VNC=ON -e SNAP_URL_BASE=http://localhost:8088  -e CKC_PASSWD=123 -e TZ=Asia/Chongqing easychen/checkchan:latest</pre></div>
+<div class="highlight highlight-source-shell"><pre class="notranslate">docker run -d -p 8088:80 -p 8080:8080 -p 5900:5900 -v <span class="pl-smi">${PWD}</span>/data:/checkchan/data -e API_KEY=123  -e VDEBUG=OFF -e VNC=ON -e SNAP_URL_BASE=http://localhost:8088  -e CKC_PASSWD=123 -e TZ=Asia/Chongqing easychen/checkchan:latest</pre></div>
 <p>请将上述命令中的123替换为你想要设定的密码、将<code class="notranslate">SNAP_URL_BASE</code>换成服务器的外网IP(如果想通过手机查看截图)。</p>
+<h4>群晖安装</h4>
+<p>只有<strong>支持Docker的群晖型号</strong>才能安装Check酱，除了可以直接通过命令行安装，也可以参考<a href="https://docs.qq.com/doc/DWm56dVN2UUVibk1C" rel="nofollow">GUI安装教程</a>。</p>
+<p><code class="notranslate">Volume</code> 和环境变量可以参考以上的docker/compose设定。</p>
 <h4>更新镜像</h4>
 <p>Check酱云端镜像更新后，你可以将正在运行的云端服务升级到最新版。方式如下：</p>
 <p>首先停现有的容器：</p>
 <p>通过 docker-compose 启动的运行：</p>
-<div class="highlight highlight-source-shell"><pre>docker-compose down</pre></div>
+<div class="highlight highlight-source-shell"><pre class="notranslate">docker-compose down</pre></div>
 <p>通过 docker 直接启动的运行 <code class="notranslate">docker ps</code> 查询到容器id，通过 <code class="notranslate">docker stop 容器id</code> 停止。</p>
 <p>然后运行 docker pull 拉取最新版：</p>
-<div class="highlight highlight-source-shell"><pre>docker pull easychen/checkchan:latest</pre></div>
+<div class="highlight highlight-source-shell"><pre class="notranslate">docker pull easychen/checkchan:latest</pre></div>
 <p>完成后再启动服务即可。</p>
 <h2>云端的使用</h2>
 <h3>将浏览器插件对接云端</h3>
@@ -201,6 +236,21 @@
 <ul>
 <li>截图功能需要较大的内存，部分服务器可能会报错</li>
 <li>云端网络和本地不同，可能会超时失败，请适当增加延时，并将取消完整截图</li>
+</ul>
+<h3>RSS上行接口</h3>
+<p>Check酱自架云端内置了动态页面RSS上行用的接口：</p>
+<ul>
+<li>RSS上行地址为： <code class="notranslate">http://$ip:$port/rss/upload?key=$api_key</code></li>
+<li>RSS Feed地址为：<code class="notranslate">http://$ip:$port/image/rss.xml?key=$api_key</code></li>
+</ul>
+<h3>多浏览器Cookie同步接口</h3>
+<p>Check酱自架云端内置了Cookie同步用的接口：</p>
+<p><a target="_blank" rel="noopener noreferrer" href="image/20220818011127.png"><img src="image/20220818011127.png" alt="" style="max-width: 100%;"></a></p>
+<ul>
+<li>Cookie同步URL为： <code class="notranslate">http://$ip:$port/cookie/sync?key=$api_key</code></li>
+<li>配对密码： 自行设定，同步Cookie的两个浏览器中必须一致</li>
+<li>同步方向： 一个发送一个接收，一般电脑上的发送、服务器上远程桌面里的接收</li>
+<li>同步频率：发送或者接收间隔时间</li>
 </ul>
 <h3>云端任务的安全性</h3>
 <p>Check酱云端任务的原理是将cookie同步到云端，然后用浏览器查看，本质和用户操作一样。但因为出口IP可能是机房和数据中心，频次太高也有被风控的可能。如果将云端部署在家里，则和在家用电脑访问效果一样。</p>
@@ -227,7 +277,7 @@
 </blockquote>
 <h3>通过 Web 界面使用</h3>
 <ul>
-<li>Web界面: http:///$BBB:8088</li>
+<li>Web界面: http:///$BBB:8080</li>
 <li>密码: 123 （可自行修改命令调整）</li>
 </ul>
 <h3>通过 VNC 连接使用</h3>
@@ -240,16 +290,16 @@
 <p>在远程桌面中，可以直接连接同一个容器内的云端，服务器地址填 <code class="notranslate">http://localhost</code>，API KEY按上边 YML 中设置的输入即可。</p>
 <h3>移动版</h3>
 <p>可以添加环境变量，修改屏幕宽高限制，使其在手机上更好用:</p>
-<div class="highlight highlight-source-lisp"><pre>- WIN_WIDTH=<span class="pl-c1">414</span> 
-- WIN_HEIGHT=<span class="pl-c1">896</span> 
-- XVFB_WHD=500x896x16</pre></div>
+<div class="highlight highlight-text-md"><pre class="notranslate"><span class="pl-v">-</span> WIN_WIDTH=414 
+<span class="pl-v">-</span> WIN_HEIGHT=896 
+<span class="pl-v">-</span> XVFB_WHD=500x896x16</pre></div>
 <p>一个加到 docker 命令中的例子：</p>
-<div class="highlight highlight-source-shell"><pre>docker run -d -p 5900:5900 -v <span class="pl-smi">${PWD}</span>/data:/checkchan/data -e CKC_PASSWD=123 -e WIN_WIDTH=414 -e WIN_HEIGHT=896 -e XVFB_WHD=500x896x16 easychen/checkchan:latest</pre></div>
+<div class="highlight highlight-source-shell"><pre class="notranslate">docker run -d -p 5900:5900 -v <span class="pl-smi">${PWD}</span>/data:/checkchan/data -e CKC_PASSWD=123 -e WIN_WIDTH=414 -e WIN_HEIGHT=896 -e XVFB_WHD=500x896x16 easychen/checkchan:latest</pre></div>
 <h3>特别说明</h3>
 <p>容器日常消耗在 300M~500M。内存较大的运行环境会比较稳定，如果遇到问题可尝试加大内存。</p>
 <h3>可视化调试</h3>
 <p>使用同一个镜像中集成的云端可以对云端任务进行可视化调试，将 YML 文件中的 <code class="notranslate">VDEBUG</code> 设置为 <code class="notranslate">ON</code>，再重新启动容器即可看到云端监测网页的详细过程。</p>
-<div class="highlight highlight-source-yaml"><pre><span class="pl-ent">environment</span>:
+<div class="highlight highlight-source-yaml"><pre class="notranslate"><span class="pl-ent">environment</span>:
   - <span class="pl-s"><span class="pl-pds">"</span>CKC_PASSWD=123<span class="pl-pds">"</span></span>
   - <span class="pl-s"><span class="pl-pds">"</span>VDEBUG=ON<span class="pl-pds">"</span></span></pre></div>
 

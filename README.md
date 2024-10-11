@@ -4,7 +4,23 @@
 
 ![](image/20220526194209.png)  
 
-⚠️ docker目录下的代码仅供安全核查和编译多平台镜像，采用附加条件的GPLV3授权：
+## 商店安装
+
+|微软Edge|谷歌Chrome|
+|-|-|
+|[![](image/20220906224637.png)](https://microsoftedge.microsoft.com/addons/detail/check%E9%85%B1/almpackhamocjhnlbhdbcnlbfidnadji)  |[![](image/20220906224612.png)](https://chrome.google.com/webstore/detail/check%E9%85%B1/deomglgnplnflcbljmehpafdnhdklcep)  |
+
+点以上图标进入商店页面或者直接在商店搜索「Check酱」即可
+
+## 官方视频教程
+
+[![](image/20220531151537.png)](https://www.bilibili.com/video/BV1K94y1m7tt)
+
+[详细版，近2小时](https://www.bilibili.com/video/BV1K94y1m7tt)
+
+## 开源声明
+
+⚠️ 浏览器插件不开源，docker目录下的代码仅供安全核查和编译多平台镜像，采用附加条件的GPLV3授权：
 
 1. **不得修改或删除**默认对接的Server酱通道。
 1. 不得对接**其他消息通道**后再次发布。
@@ -12,18 +28,14 @@
 
 ## 最新版本
 
-- 插件·Chrome/Edge：2022.06.04.15.57 [下载](ckc.zip)
-- Docker镜像(云端+远程桌面二合一)：2022.06.04.15.28 [Docker Hub](https://hub.docker.com/repository/docker/easychen/checkchan)
-- 文档：2022.06.04.16.00
+- 插件·Chrome/Edge：2024.10.05.13.57 [下载](ckc.zip) ([Github下载地址，无需注册](https://github.com/easychen/checkchan-dist/raw/master/ckc.zip))
+- Docker镜像(云端+远程桌面二合一)：2024.10.10.17.20 [Docker Hub](https://hub.docker.com/repository/docker/easychen/checkchan)
+- 文档：2024.10.11.10.14
 - 更新日志：[GitHub](https://github.com/easychen/checkchan-dist/commits/main)
+- 生态：RSSHub浏览器插件整合版（[源码](https://github.com/easychen/RSSHub-Radar-with-checkchan) | [下载](https://github.com/easychen/RSSHub-Radar-with-checkchan/releases/download/main/1.7.0.with-checkchan.zip)）
 
 > Docker镜像安装命令请参阅后文云端架设一节
 
-## 官方视频教程
-
-[![](image/20220531151537.png)](https://www.bilibili.com/video/BV1K94y1m7tt)
-
-[详细版，近2小时](https://www.bilibili.com/video/BV1K94y1m7tt)
 
 ## 什么是「Check酱」
 
@@ -54,7 +66,7 @@ Check酱的原理是，通过浏览器插件后台打开网页进行监测，从
 
 > 目前Check酱正在内测，尚未上架Edge商店，只能通过手工方式载入
 
-下载[插件ZIP包](ckc.zip)，解压为目录（后文称其为A）。
+下载[插件ZIP包](ckc.zip)([Github下载地址，无需注册](https://github.com/easychen/checkchan-dist/raw/master/ckc.zip))，解压为目录（后文称其为A）。
 
 打开Edge的插件页面，打开「开发者模式」，点击「Load Unpacked」，选择上边解压得到的目录A。
 
@@ -166,6 +178,21 @@ checkchan://title=Server%E9%85%B1%E5%AE%98%E6%96%B9%E7%BD%91%E7%AB%99%E7%8A%B6%E
 
 同时，因为执行监测任务本身也耗费时间，所以「监控间隔时间」为1分钟时，往往每隔一分钟（即每两分钟）才会运行一次任务。
 
+### Selector 扩展语法
+
+#### 通过@指定数组元素
+
+最新的版本支持了一个Selector扩展语法：由于底层通过 `document.querySelectorAll` 实现，因此会返回匹配的全部元素于一个数组。当这些元素属于同一个父节点我们可以用 `:nth-of-type(1)` 或者 `:nth-child(1)`来指定数组中的某一项。
+
+但如果这些元素不属于同一个父节点，那么以上方法会失效。这里添加了一个 selector@n 的语法，让我们可以从 Selector 返回的数组中指定某一个元素。如 `.booklist .item@0` 将返回  `document.querySelectorAll(.booklist .item)[0]` 。
+
+> @语法除了使用在DOM selector上，还可以用来指定 RSS 监测结果。默认情况下，RSS 将返回整个Feed的第一篇文章，你可以用过在 Feed url 后边添加 @1 ，将其指定为监测第二篇文章（依然是从0开始计数）。
+
+#### 通过%获得元素属性
+
+Selector的最下一级返回一个元素，但有时候我们需要监测这个元素的某个属性值。比如监测一个链接的`href`。为了解决这个问题，我们扩展了 selector 语法，让用户可以通过 element%attribute 的方式来获取元素的某个属性值。如：`article#post-180 > div > div > p > a%href`。当 `%` 和 `@` 同时使用时， `%` 应紧跟元素后，如：`article#post-180 > div > div > p > a%href@0`。
+
+
 ### 日志查看和错误定位
 
 为了更清楚的了解定时任务的执行情况，你可以打开「开发者工具」（F12）在 `Console` 标签页中可以看到任务产生的日志。
@@ -196,6 +223,12 @@ checkchan://title=Server%E9%85%B1%E5%AE%98%E6%96%B9%E7%BD%91%E7%AB%99%E7%8A%B6%E
 > 架设自架版云端需要技术基础，非技术用户建议购买我们的官方版云端（将在内测完成后发布）
 
 需要docker环境。如果你没有云服务器，可以看看[腾讯云30~50元首单的特价服务器](https://curl.qcloud.com/VPjlS4gj)。
+
+#### 一键安装命令
+
+[点此进入工具界面](https://install.ftqq.com/config/checkchan)
+
+![](image/20220818153012.png)  
 
 
 #### 通过 Docker-compose 启动
@@ -228,6 +261,8 @@ services:
       #- "SNAP_URL_BASE=<开启截图在这里写服务器地址（结尾不用加/），不开留空>..."
       #- "SNAP_FULL=1"
       - "TZ=Asia/Chongqing"
+      # - "WEBHOOK_URL=http://..." # 云端 Webhook地址，不需要则不用设置
+      # - "WEBHOOK_FORMAT=json" # 云端 Webhook POST 编码，默认是 Form
     ports:
       - "5900:5900" 
       - "8080:8080" 
@@ -264,6 +299,12 @@ docker run -d -p 8088:80 -p 8080:8080 -p 5900:5900 -v ${PWD}/data:/checkchan/dat
 ```
 
 请将上述命令中的123替换为你想要设定的密码、将`SNAP_URL_BASE`换成服务器的外网IP(如果想通过手机查看截图)。
+
+#### 群晖安装
+
+只有**支持Docker的群晖型号**才能安装Check酱，除了可以直接通过命令行安装，也可以参考[GUI安装教程](https://docs.qq.com/doc/DWm56dVN2UUVibk1C)。
+
+`Volume` 和环境变量可以参考以上的docker/compose设定。
 
 #### 更新镜像
 
@@ -325,6 +366,24 @@ Check酱自架云端支持对网页（dom）类型任务进行截图，可以通
 - 截图功能需要较大的内存，部分服务器可能会报错
 - 云端网络和本地不同，可能会超时失败，请适当增加延时，并将取消完整截图
 
+### RSS上行接口
+
+Check酱自架云端内置了动态页面RSS上行用的接口：
+
+- RSS上行地址为： `http://$ip:$port/rss/upload?key=$api_key`
+- RSS Feed地址为：`http://$ip:$port/image/rss.xml?key=$api_key`
+
+### 多浏览器Cookie同步接口
+
+Check酱自架云端内置了Cookie同步用的接口：
+
+![](image/20220818011127.png)  
+
+- Cookie同步URL为： `http://$ip:$port/cookie/sync?key=$api_key`
+- 配对密码： 自行设定，同步Cookie的两个浏览器中必须一致
+- 同步方向： 一个发送一个接收，一般电脑上的发送、服务器上远程桌面里的接收
+- 同步频率：发送或者接收间隔时间
+
 ### 云端任务的安全性
 
 Check酱云端任务的原理是将cookie同步到云端，然后用浏览器查看，本质和用户操作一样。但因为出口IP可能是机房和数据中心，频次太高也有被风控的可能。如果将云端部署在家里，则和在家用电脑访问效果一样。
@@ -364,7 +423,7 @@ Check酱云端任务的原理是将cookie同步到云端，然后用浏览器查
 
 ### 通过 Web 界面使用
 
-- Web界面: http:///$BBB:8088
+- Web界面: http:///$BBB:8080
 - 密码: 123 （可自行修改命令调整）
 
 ### 通过 VNC 连接使用

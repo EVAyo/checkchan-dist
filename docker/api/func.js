@@ -10,11 +10,19 @@ const fs = require("fs");
 const dayjs = require("dayjs");
 const { JSDOM } = require("jsdom");
 const spawnAsync = require('@expo/spawn-async');
+const ip = require('ip');
+const {Base64} = require('js-base64');
 
 get_data_dir = ()=>
 {
     // 兼容下旧版目录配置
     const dir_path = parseInt(process.env.DEV) > 0 ? path.join( __dirname, '/../data/app_data') : ( fs.existsSync('/data') ? '/data' : '/checkchan/data/app_data' ) ;
+    if( !fs.existsSync( dir_path ) ) fs.mkdirSync( dir_path );
+    return dir_path;
+}
+
+get_shell_dir = ()=> {
+    const dir_path = path.join(get_data_dir(),'shell');
     if( !fs.existsSync( dir_path ) ) fs.mkdirSync( dir_path );
     return dir_path;
 }
@@ -98,45 +106,59 @@ exports.cron_check = ( cron, now = null )=>
         let dline = dinfo[i].trim();
         if( cline != "*" )
         {
-            if( cline.indexOf(',') >= 0 )
+            const cpart = cline.indexOf(',') >= 0 ? cline.split(','):[cline];
+            
+            if( cline.indexOf('-') >= 0 )
             {
-                const cpart = cline.split(',');
-                if( cline.indexOf('-') >= 0 )
+                // citem 全部用int，其他地方用string
+                let citem = [];
+                for( let cp of cpart )
                 {
-                    // citem 全部用int，其他地方用string
-                    let citem = [];
-                    for( let cp of cpart )
+                    // console.log(cp);
+                    if( cp.indexOf('-') >= 0 )
                     {
-                        // console.log(cp);
-                        if( cp.indexOf('-') >= 0 )
-                        {
-                            const cpinfo = cp.split('-');
-                            // console.log( cpinfo );
-                            cp = range(  parseInt(cpinfo[0]),parseInt(cpinfo[1]),1 );
-                            citem = citem.concat( cp );
-                        }else
-                        {
-                            citem.push( parseInt(cp) );
-                        }
+                        const cpinfo = cp.split('-');
+                        // console.log( cpinfo );
+                        cp = range(  parseInt(cpinfo[0]),parseInt(cpinfo[1]),1 );
+                        citem = citem.concat( cp );
+                    }else
+                    {
+                        citem.push( parseInt(cp) );
                     }
-                    if( !citem.includes(parseInt(dline)) ) ret = false;
-                    console.log( citem );
-                    
-                }else
-                {
-                    if( !cpart.includes(dline) ) ret = false;
                 }
+                // if( !citem.includes(parseInt(dline)) ) ret = false;
+                if(!part_check( citem, parseInt(dline), cline )) ret = false;
+                console.log( i, citem, cron );
                 
             }else
             {
-                if( cline != dline ) ret = false;
+                // if( !cpart.includes(dline) ) ret = false;
+                if(!part_check( cpart, parseInt(dline), cline )) ret = false;
             }
         }
 
-        console.log( cline, dline, ret );
+        // console.log( cline, dline, ret );
         
     }
+    if( ret && cron != "* * * * *" ) console.log("当前时间"+dinfo.join('-')+"cron "+cron);
     return ret;
+}
+
+function part_check( items, item, string )
+{
+    // console.log( items );
+    const reginfo = string.match(/\/([1-9][0-9]*)/);
+    const number_items = items.map( i => parseInt( i ) );
+    if( !reginfo )
+    {
+        return number_items.includes( parseInt(item) );
+    }
+    else
+    {
+        const n = parseInt( reginfo[1] );
+        const only_items = number_items.filter( item => (item - number_items[0]) % n == 0 );   
+        return only_items.includes( parseInt(item) );
+    }
 }
 
 exports.to_time_string = ( date ) =>
@@ -152,6 +174,40 @@ exports.get_cookies = () =>
     return json_data.cookies;
 }
 
+exports.do_webhook = async( id, url, value, html, link, data ) =>
+{
+    // 因为webhook的内容更多，所以不能放到 show_notice 里边处理，这里单独处理
+    if( process.env.WEBHOOK_URL )
+    {
+        // make post
+        const form = new FormData();
+        form.append( 'id', id );
+        form.append( 'url', url );
+        form.append( 'value',value );
+        form.append( 'html',html );
+        form.append( 'link',link );
+        form.append( 'data',data );
+
+        const json = JSON.stringify( { id, url, value, html, link, data } );
+
+        try {
+            const response = await fetch( process.env.WEBHOOK_URL , {
+                method: 'POST', 
+                body: (process.env.WEBHOOK_FORMAT && process.env.WEBHOOK_FORMAT.toLowerCase() == 'json') ? json : form
+            } );
+    
+            const ret = await response.text();
+            console.log( "wehbook response", ret );
+            return ret;
+
+        } catch (error) {
+            console.log( "fetch log error", error );
+            return false;
+        }
+        
+    }
+}
+
 exports.send_notify = async ( title, desp, sendkey, channel = -1, short = false)  =>
 {
     try {
@@ -159,8 +215,9 @@ exports.send_notify = async ( title, desp, sendkey, channel = -1, short = false)
         if( channel >= 0 ) form.append( 'channel',parseInt(channel));
         if( short ) form.append( 'short',short ); 
         form.append( 'title',title ); 
-        form.append( 'desp',desp.substring(0,10000) ); 
-        const response = await fetch( 'https://sctapi.ftqq.com/'+sendkey+'.send', {
+        form.append( 'desp',desp.substring(0,10000) + "\r\n\r\n" + "来自云端@"+ ip.address() ); 
+        const api = String(sendkey).startsWith('sctp') ? `https://${sendkey}.push.ft07.com/send` : `https://sctapi.ftqq.com/${sendkey}.send`
+        const response = await fetch( api, {
             method: 'POST', 
             body: form
         }  );
@@ -187,7 +244,8 @@ exports.monitor_auto = async ( item, cookies ) =>
                 break;
             case 'rss':
                 ret = await monitor_rss( item.url, (parseInt(item.delay)||0)*1000 );
-                return {status:!!(ret&&ret[item.rss_field]),value:ret[item.rss_field]||"",link:ret.link,type:item.type};
+                if( ret && ret['content'] ) ret['description'] = ret['content'];
+                return {status:!!(ret&&ret[item.rss_field]),value:ret[item.rss_field]||"",html:ret['content']||"",link:ret.link,type:item.type};
                 break;
             case 'json':
                 // 特别注意，云端的json监测包含delay参数
@@ -213,7 +271,7 @@ exports.monitor_auto = async ( item, cookies ) =>
 
 async function monitor_get(url,timeout=10000)
 {
-    const response = await fetch( url, { signal: timeoutSignal(timeout<1?10000:timeout) } );
+    const response = await fetch( compile_url(url), { signal: timeoutSignal(timeout<1?10000:timeout) } );
     return response.status;
 }
 
@@ -249,11 +307,11 @@ async function monitor_json(url, query, header=false, body_string=false, format 
         if( headers ) opt.headers = headers;
         if( method == 'POST' ) opt.body = body;
 
-        const response = await fetch( url, opt );
+        const response = await fetch( compile_url(url), opt );
         const data = await response.json();
         const ret = jsonQuery( query ,{data} );
         console.log( ret );
-        if( !( ret && ret.value ) )
+        if( !( ret ) )
         {
             console.log("save error");
             const image_dir = get_data_dir()+'/image';
@@ -274,15 +332,29 @@ async function monitor_json(url, query, header=false, body_string=false, format 
 // rssParser
 async function monitor_rss(url,timeout=10000)
 {
+    let index = 0;
+    let feed = compile_url(url);
+    let all = true;
+    let m;
+
+    if( ( m = /^(http(s)*:\/\/.+)@([0-9]+)$/is.exec(url)) !== null )
+    {
+        index = parseInt(m[3]);
+        feed = m[1];
+        all = false;
+    }
+    
     const parser = new rssParser({ timeout });
-    const site = await parser.parseURL( url );
-    const ret = site.items[0]||false;
+    const site = await parser.parseURL( feed );
+    const ret = site.items[index];
+    if( all ) ret.content = site.items.map( item => item.content ).join("\r\n<hr/><br/>\r\n");
+    
     return ret;
 }
 
 async function monitor_dom_low(item, cookies)
 {
-    const { url, path, delay } = item;
+    const { url, path, delay, ignore_path,click_path,data_path,scroll_down } = item;
     console.log("in low dom");
     try {
         const response = await fetch( url, { signal: timeoutSignal(delay<1?10000:delay) } );
@@ -290,18 +362,52 @@ async function monitor_dom_low(item, cookies)
         if( all.substring(0,2000).toLowerCase().indexOf('utf-8') < 0 ) return  false;
         // const sniffedEncoding = htmlEncodingSniffer(await response.arrayBuffer());
         // console.log(sniffedEncoding);
+        let opt = {};
+        if( item.ua ) opt['userAgent'] = item.ua;
+        const dom = new JSDOM(all,opt);
+        
+        if( click_path )
+        {
+            const click_dom = dom.window.document.querySelector(click_path);
+            if( click_dom )
+            {
+                const evt = new Event('click', { bubbles: false, cancelable: false, composed: false });
+                click_dom.dispatchEvent(evt);
+            }
+        }
 
-        const dom = new JSDOM(all);
-        const ret = dom.window.document.querySelectorAll(path);
+        if( scroll_down && parseInt(scroll_down) > 0 )
+        {
+            dom.window.scrollTo(0,dom.window.document.body.scrollHeight);
+        }
+        
+        if( ignore_path ) dom.window.document.querySelectorAll(ignore_path).forEach( item => item.remove() );
+
+        const path_info = path.split("@");
+        const selector_info = path_info[0].split("%");
+        let ret = dom.window.document.querySelectorAll(selector_info[0]);
+        if( path_info[1] ) ret = [ret[path_info[1]]];
 
         let texts = [];
         let html = "";
         for( let item of ret )
         {
-            item.querySelectorAll("[src]").forEach( item => { if( item.src.substr(0,4) != 'http' ) { item.src = new URL(url).origin +( item.src.substr(0,1) == '/' ? item.src : '/'+ item.src  )   } } );
+            if( !item ) continue;
             
-            if( item.textContent ) texts.push(item.textContent?.trim());
-            html += item.outerHTML ? item.outerHTML + "<br/>" : ""; 
+            ['src','href'].forEach( field => {
+                
+                item.querySelectorAll("["+field+"]").forEach( item => { if( item[field]?.substr(0,4) != 'http' ) { item[field] = new URL(url).origin +( item[field]?.substr(0,1) == '/' ? item[field] : '/'+ item[field]  )   } } );
+
+                if( item[field] )
+                {
+                    if( item[field]?.substr(0,4) != 'http' ) { item[field] = new URL(url).origin +( item[field]?.substr(0,1) == '/' ? item[field] : '/'+ item[field]  )   } 
+                };
+            } );
+            
+            const field = selector_info[1] ? selector_info[1] : "textContent";
+            if( item[field] ) texts.push(item[field]?.trim());
+            if( field == 'textContent' )
+                html += item.outerHTML ? item.outerHTML + "<br/>" : ""; 
         }
 
         return {text:path.indexOf(",") >= 0 ? texts.join("\n") :texts[0]||"",html,all};
@@ -341,16 +447,17 @@ async function monitor_shell(item, cookies)
             break;
     }
 
-    const shell_file = get_data_dir() + '/' + id + '.' + ext; 
-    fs.writeFileSync( shell_file, shell_code );
+    const shell_file = get_shell_dir() + '/' + id + '.' + ext; 
+    fs.writeFileSync( shell_file, Base64.decode(shell_code) || shell_code );
 
     const cookie_name = item.shell_cookie_name || "COOKIE";
     const cookie_string = build_cookie_string(cookies)||"";
 
     const result = await spawnAsync( command, [shell_file], {
         env: {
-            'URL':url,
+            'URL':compile_url(url),
             [cookie_name]:cookie_string,
+            ...process.env,
         }
     } );
     const { stdout, stderr, status } = result;
@@ -363,7 +470,8 @@ async function monitor_shell(item, cookies)
 
 async function monitor_dom(item , cookies)
 {
-    const { url, path, id } = item;
+    const { path, id, ignore_path,click_path,data_path,scroll_down } = item;
+    const url = compile_url(item.url);
     const delay = (parseInt(item.delay)||0)*1000;
 
     console.log("in dom delay = ",delay);
@@ -385,6 +493,19 @@ async function monitor_dom(item , cookies)
         executablePath:process.env.CHROME_BIN||"/usr/bin/chromium-browser",
     };
 
+    if( item.ua )
+    {
+        opt.args.push( `--user-agent=${item.ua}` );
+    }
+
+    // 支持proxy
+    if( process.env.PROXY_SERVER )
+    {
+        opt.args.push( `--proxy-server=${process.env.PROXY_SERVER}` );    
+    }
+
+    // console.log( opt );
+
     if( process.env.CHROMIUM_PATH ) 
         opt['executablePath'] = process.env.CHROMIUM_PATH;
 
@@ -394,6 +515,7 @@ async function monitor_dom(item , cookies)
     let ret = false;
     
     const page = await browser.newPage(); 
+    if( item.ua ) await page.setUserAgent( item.ua );
     await page.setDefaultNavigationTimeout(delay+1000*10);
     // await page.setDefaultNavigationTimeout(0);
     if( isIterable(cookies) )
@@ -426,9 +548,40 @@ async function monitor_dom(item , cookies)
             await sleep(1000);
         } 
 
-        ret = await page.evaluate( (path,browser_code ) => {
+        ret = await page.evaluate( async (path,browser_code,ignore_path,click_path,data_path,scroll_down ) => {
+            
+            // 滚动的页面底部
+            if( scroll_down && parseInt(scroll_down) > 0 )
+            {
+                window.scrollTo(0,document.body.scrollHeight);
+                await sleep(5000);
+            }
+
+            // 点击特定区域
+            if( click_path )
+            {
+                const click_path_items = click_path.split(",");
+                for( let item of click_path_items )
+                {
+                    const click_item = window.document.querySelector(item);
+                    if( click_item )
+                    {
+                        click_item.click();
+                        await sleep(1000);
+                    }
+                }
+            }
+
+            
             if( browser_code ) eval( browser_code );
-            let ret = window.document.querySelectorAll(path);
+            
+            if( ignore_path ) window.document.querySelectorAll(ignore_path).forEach( item => item.remove() );
+            
+            const path_info = path.split("@");
+            const selector_info = path_info[0].split("%");
+            let ret = window.document.querySelectorAll(selector_info[0]);
+            if( path_info[1] ) ret = [ret[path_info[1]]];
+
             if( !ret ) return false;
             console.log("query fail",path,ret);
             let texts = [];
@@ -437,18 +590,50 @@ async function monitor_dom(item , cookies)
             {
                 item.querySelectorAll("[src]").forEach( item => { if( item.src.substr(0,4) != 'http' ) { item.src = window.origin +( item.src.substr(0,1) == '/' ? item.src : '/'+ item.src  )   } } );
                 
-                if( item.innerText ) texts.push(item.innerText?.trim());
-                html += item.outerHTML ? item.outerHTML + "<br/>" : ""; 
+                const field = selector_info[1] ? selector_info[1] : "innerText";
+                if( item[field] ) texts.push(item[field]?.trim());
+                if( field == 'innerText' ) html += item.outerHTML ? item.outerHTML + "<br/>" : ""; 
             }
             return {html,text:path.indexOf(",") >= 0 ? texts.join("\n") :texts[0]||"","all":window.document.documentElement.innerHTML};
-        },path,browser_code);
+        },path,browser_code,ignore_path,click_path,data_path,scroll_down);
         
         if( !ret )
         {
             console.log("sleep",1000*5);
             await sleep(1000*5);
-            ret = await page.evaluate( (path) => {
-                let ret = window.document.querySelectorAll(path);
+            ret = await page.evaluate( async (path,browser_code,ignore_path,click_path,data_path,scroll_down) => {
+                // 滚动的页面底部
+                if( scroll_down && parseInt(scroll_down) > 0 )
+                {
+                    window.scrollTo(0,document.body.scrollHeight);
+                    await sleep(5000);
+                }
+
+                // 点击特定区域
+                if( click_path )
+                {
+                    const click_path_items = click_path.split(",");
+                    for( let item of click_path_items )
+                    {
+                        const click_item = window.document.querySelector(item);
+                        if( click_item )
+                        {
+                            click_item.click();
+                            await sleep(1000);
+                        }
+                    }
+                }
+
+                
+                if( browser_code ) eval( browser_code );
+                
+                if( ignore_path ) window.document.querySelectorAll(ignore_path).forEach( item => item.remove() );
+                
+                const path_info = path.split("@");
+                const selector_info = path_info[0].split("%");
+                let ret = window.document.querySelectorAll(selector_info[0]);
+                if( path_info[1] ) ret = [ret[path_info[1]]];
+
                 console.log("query fail again",path,ret);
                 if( !ret ) return false;
                 let texts = [];
@@ -457,11 +642,13 @@ async function monitor_dom(item , cookies)
                 {
                     item.querySelectorAll("[src]").forEach( item => { if( item.src.substr(0,4) != 'http' ) { item.src = window.origin +( item.src.substr(0,1) == '/' ? item.src : '/'+ item.src  )   } } );
                     
-                    if( item.innerText ) texts.push(item.innerText?.trim());
-                    html += item.outerHTML ? item.outerHTML + "<br/>" : ""; 
+                    const field = selector_info[1] ? selector_info[1] : "innerText";
+                    if( item[field] ) texts.push(item[field]?.trim());
+                    if( field == 'innerText' ) html += item.outerHTML ? item.outerHTML + "<br/>" : ""; 
+
                 }
                 return {html,text:path.indexOf(",") >= 0 ? texts.join("\n") :texts[0]||"","all":window.document.documentElement.innerHTML};
-            },path);
+            },path,browser_code,ignore_path,click_path,data_path,scroll_down);
             
         }
         const { all,html, ...ret_short } = ret;
@@ -554,5 +741,19 @@ function build_cookie_string( cookie_array )
         if( cookie.name ) ret.push(`${cookie.name}=${cookie.value}`)
     }
     return ret.length > 0 ? ret.join('; ') : false;
+}
+
+function compile_url( url )
+{
+    // replace date in url 
+    // {$_CKC_DATE}
+    const values = {};
+    values['date'] = dayjs().format('DD');
+    values['year'] = dayjs().format('YYYY');
+    values['month'] = dayjs().format('MM');
+    values['hour'] = dayjs().format('HH');
+    values['minute'] = dayjs().format('mm');
+    values['day_7'] = dayjs().subtract(7,'day').format('YYYY-MM-DD');
+    return url.replace( /\{\$_CKC_(.+?)}/isg, (m, g1,) => values[g1.toLowerCase()] || g1 );
 }
 

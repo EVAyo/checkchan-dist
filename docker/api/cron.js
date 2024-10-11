@@ -1,6 +1,6 @@
 const fs = require("fs");
 const dayjs = require("dayjs");
-const { monitor_auto, send_notify, get_data_dir, cron_check, logstart, logit, to_markdown, short, makeFloat } = require("./func");
+const { monitor_auto, send_notify, get_data_dir, cron_check, logstart, logit, to_markdown, short, makeFloat, do_webhook } = require("./func");
 
 const data_file = get_data_dir() + '/data.json';
 const content = fs.readFileSync( data_file );
@@ -56,6 +56,7 @@ for( const item of to_checks )
         let check_content = ""; 
         let check_html = ""; 
         let check_link = ""; 
+        let check_data = ""; 
         
         logit("checking..."+item.title, dayjs().format('YYYY-MM-DD HH:mm:ss'));
         
@@ -63,8 +64,14 @@ for( const item of to_checks )
         if( ret && ret.status )
         {
             check_content = ret.value;
+            
+            // 添加正则替换
+            if( item.replace_from_regex && item.replace_to_regex ) check_content = check_content.replace( new RegExp(item.replace_from_regex,'img'), item.replace_to_regex );
+
+
             if( ret.html ) check_html = ret.html;
             if( ret.link ) check_link = ret.link;
+            if( ret.data ) check_data = ret.data;
             check_status = 1;
             
         }
@@ -82,7 +89,7 @@ for( const item of to_checks )
             if( retry_times >= item.retry )
             {
                 // 发送通知
-                await send_notify( '监测点['+item.title+']多次重试失败', "已暂停执行，请检查登录状态或页面结构变动。点击任务的监测按钮可以解除暂停\r\n\r\n[点此查看]("+item.url+")" , item.sendkey, item.send_channel||-1);
+                await send_notify( '监测任务['+item.title+']多次重试失败', "已暂停执行，请检查登录状态或页面结构变动。点击任务的监测按钮可以解除暂停\r\n\r\n[点此查看]("+item.url+")" , item.sendkey, item.send_channel||-1);
             }
             check_update_field( item.id, 'retry_times', retry_times+1, json_data );
             
@@ -116,7 +123,7 @@ for( const item of to_checks )
             if( item.compare_type == 'regex' )
             {
                 logit("正则匹配模式");
-                if( item.regex && !check_content.match( new RegExp(item.regex, 'i') ) )
+                if( item.regex && !check_content.match( new RegExp(item.regex, 'img') ) )
                 {
                     can_send_notice = false;
                     logit( '通知正则不匹配，不发送通知' );
@@ -133,7 +140,6 @@ for( const item of to_checks )
                 
                 if( item.compare_value == '*上次监测返回值*' ) the_value = last_content;
                 
-
                 if( item.compare_op == 'ne' && !(check_content != the_value)) can_send_notice = false;
 
                 if( item.compare_op == 'eq' && !(check_content == the_value)) can_send_notice = false;
@@ -157,10 +163,12 @@ for( const item of to_checks )
             if( can_send_notice )
             {
                 logit( '已发送通知' );
+
+                await do_webhook( item.id, item.url, check_content, check_html, check_link || item.page || item.url, check_data );
             
                 if( item.sendkey )
                 {
-                    const title = '监测点['+item.title+']有新通知';
+                    const title = '监测任务['+item.title+']有新通知';
                                 
                     let desp = short(check_content,50) + (last_content && item.when == 'change' ? ('←' + short(last_content,50)):"");
 
@@ -179,7 +187,7 @@ for( const item of to_checks )
                         }
                     }
                     
-                    // const title = check_content.length > 50 ? '监测点['+item.title+']有新通知' : ( '监测点['+item.title+']有新通知: ' + check_content + (item.last_content ? ('←' + item.last_content):"") );
+                    // const title = check_content.length > 50 ? '监测任务['+item.title+']有新通知' : ( '监测任务['+item.title+']有新通知: ' + check_content + (item.last_content ? ('←' + item.last_content):"") );
 
                     // const desp = check_content.length > 50 ? (check_html ? to_markdown(check_html) : check_content) :  check_content + (item.last_content ? ('←' + item.last_content):"") ;
                     

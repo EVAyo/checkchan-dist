@@ -9,7 +9,7 @@ const cors = require('cors');
 app.use(cors());
 
 var multer = require('multer');
-var forms = multer();
+var forms = multer({limits: { fieldSize: 100 * 1024 * 1024 }});
 const bodyParser = require('body-parser')
 app.use(bodyParser.json());
 app.use(forms.array()); 
@@ -39,6 +39,45 @@ app.all(`/`, checkApiKey , (req, res) => {
     // res.json({"code":0,"message":"it works","version":"1.0","ip":ip.address(),data_write_access});
     // 不再显示IP，以免误导
     res.json({"code":0,"message":"it works","version":"1.1",data_write_access});
+});
+
+app.post( `/rss/upload`, checkApiKey, (req, res) => {
+    if( req.body.rss ) {
+        let rss = req.body.rss;
+        let rss_file = image_dir+'/rss.xml';
+        fs.writeFileSync(rss_file,rss);
+        res.json({"code":0,"message":"保存成功"});
+    }
+});
+
+app.post( `/cookie/sync`, checkApiKey, (req, res) => {
+    if( req.body.direction && req.body.direction == 'down' ) {
+        // 下行cookie
+        const user_name = req.body.password || "own";
+        let cookies_file = `${image_dir}/cookies.${user_name}.base64.txt`;
+        const cookies_64 = fs.readFileSync(cookies_file, 'utf8');
+        res.json({"code":0,"data":cookies_64});
+    }else
+    {
+        // 上行cookie
+        if( req.body.cookies_base64 )
+        {
+            let cookies_base64 = req.body.cookies_base64;
+            const user_name = req.body.password || "own";
+            let cookies_file = `${image_dir}/cookies.${user_name}.base64.txt`;
+            fs.writeFileSync(cookies_file,cookies_base64);
+            res.json({"code":0,"message":"保存成功"});
+        }else
+        {
+            res.json({"code":-1,"message":"cookie参数不能为空"});
+        }
+
+
+        // let cookies = Buffer.from(req.body.cookies_base64,'base64').toString();
+        
+    }
+    
+    // res.json(req.body);
 });
 
 app.post(`/checks/upload`, checkApiKey , (req, res) => {
